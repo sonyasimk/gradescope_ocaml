@@ -19,37 +19,19 @@ type gradescope = Gradescope_t.gradescope = {
   tests: result list option
 }
 
-let write__2 = (
+let write__string_option = (
   Atdgen_runtime.Oj_run.write_std_option (
     Yojson.Safe.write_string
   )
 )
-let string_of__2 ?(len = 1024) x =
+let string_of__string_option ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__2 ob x;
+  write__string_option ob x;
   Buffer.contents ob
-let read__2 = (
+let read__string_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_string
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -74,39 +56,21 @@ let read__2 = (
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
 )
-let _2_of_string s =
-  read__2 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__1 = (
+let _string_option_of_string s =
+  read__string_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__float_option = (
   Atdgen_runtime.Oj_run.write_std_option (
     Yojson.Safe.write_std_float
   )
 )
-let string_of__1 ?(len = 1024) x =
+let string_of__float_option ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__1 ob x;
+  write__float_option ob x;
   Buffer.contents ob
-let read__1 = (
+let read__float_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  Atdgen_runtime.Oj_run.read_number
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -131,8 +95,8 @@ let read__1 = (
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
 )
-let _1_of_string s =
-  read__1 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let _float_option_of_string s =
+  read__float_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_result : _ -> result -> _ = (
   fun ob (x : result) ->
     Buffer.add_char ob '{';
@@ -506,53 +470,35 @@ let read_result = (
 )
 let result_of_string s =
   read_result (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__3 = (
+let write__result_list = (
   Atdgen_runtime.Oj_run.write_list (
     write_result
   )
 )
-let string_of__3 ?(len = 1024) x =
+let string_of__result_list ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__3 ob x;
+  write__result_list ob x;
   Buffer.contents ob
-let read__3 = (
+let read__result_list = (
   Atdgen_runtime.Oj_run.read_list (
     read_result
   )
 )
-let _3_of_string s =
-  read__3 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
-let write__4 = (
+let _result_list_of_string s =
+  read__result_list (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let write__result_list_option = (
   Atdgen_runtime.Oj_run.write_std_option (
-    write__3
+    write__result_list
   )
 )
-let string_of__4 ?(len = 1024) x =
+let string_of__result_list_option ?(len = 1024) x =
   let ob = Buffer.create len in
-  write__4 ob x;
+  write__result_list_option ob x;
   Buffer.contents ob
-let read__4 = (
+let read__result_list_option = (
   fun p lb ->
     Yojson.Safe.read_space p lb;
-    match Yojson.Safe.start_any_variant p lb with
-      | `Edgy_bracket -> (
-          match Yojson.Safe.read_ident p lb with
-            | "None" ->
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (None : _ option)
-            | "Some" ->
-              Atdgen_runtime.Oj_run.read_until_field_value p lb;
-              let x = (
-                  read__3
-                ) p lb
-              in
-              Yojson.Safe.read_space p lb;
-              Yojson.Safe.read_gt p lb;
-              (Some x : _ option)
-            | x ->
-              Atdgen_runtime.Oj_run.invalid_variant_tag p x
-        )
+    match Atdgen_runtime.Yojson_extra.start_any_variant p lb with
       | `Double_quote -> (
           match Yojson.Safe.finish_string p lb with
             | "None" ->
@@ -567,7 +513,7 @@ let read__4 = (
               Yojson.Safe.read_comma p lb;
               Yojson.Safe.read_space p lb;
               let x = (
-                  read__3
+                  read__result_list
                 ) p lb
               in
               Yojson.Safe.read_space p lb;
@@ -577,8 +523,8 @@ let read__4 = (
               Atdgen_runtime.Oj_run.invalid_variant_tag p x
         )
 )
-let _4_of_string s =
-  read__4 (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
+let _result_list_option_of_string s =
+  read__result_list_option (Yojson.Safe.init_lexer ()) (Lexing.from_string s)
 let write_gradescope : _ -> gradescope -> _ = (
   fun ob (x : gradescope) ->
     Buffer.add_char ob '{';
@@ -645,7 +591,7 @@ let write_gradescope : _ -> gradescope -> _ = (
         Buffer.add_char ob ',';
         Buffer.add_string ob "\"tests\":";
       (
-        write__3
+        write__result_list
       )
         ob x;
     );
@@ -791,7 +737,7 @@ let read_gradescope = (
               field_tests := (
                 Some (
                   (
-                    read__3
+                    read__result_list
                   ) p lb
                 )
               );
@@ -926,7 +872,7 @@ let read_gradescope = (
                 field_tests := (
                   Some (
                     (
-                      read__3
+                      read__result_list
                     ) p lb
                   )
                 );
