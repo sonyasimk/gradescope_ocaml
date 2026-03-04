@@ -1,3 +1,0 @@
-(test
- (name gradescope_ocaml)
- (libraries atdgen-runtime ounit2 qcheck))
