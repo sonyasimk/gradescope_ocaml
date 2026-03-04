@@ -1,0 +1,7 @@
+(library
+ (name graders)
+ (libraries zarith str threads atdgen-runtime ounit2 qcheck)
+ (preprocess (pps ppx_deriving.show ppx_deriving.eq))
+ (wrapped false))
+
+(include_subdirs unqualified)
