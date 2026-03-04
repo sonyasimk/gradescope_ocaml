@@ -10,29 +10,29 @@ let rec sum = function
 (* testing sum of nats *)
 let test1 =
   Gradescope.to_ounit_test
-    (QCheck.Test.make ~count:1000 ~name:"small_nat"
-       QCheck.(list small_nat)
+    (QCheck.Test.make ~count:1000 ~name:"nat_small"
+       QCheck.(list nat_small)
        (fun l -> (S.sum l) = sum l))
 
 (* testing sum of ints *)
 let test2 =
   Gradescope.to_ounit_test
-    (QCheck.Test.make ~count:1000 ~name:"small_int"
-       QCheck.(list small_int)
+    (QCheck.Test.make ~count:1000 ~name:"int_small"
+       QCheck.(list int_small)
        (fun l -> (S.sum l) = sum l))
 
 (* testing sum of nats reversed *)
 let test3 =
   Gradescope.to_ounit_test
-    (QCheck.Test.make ~count:1000 ~name:"rev small_nat"
-       QCheck.(list small_nat)
+    (QCheck.Test.make ~count:1000 ~name:"rev nat_small"
+       QCheck.(list nat_small)
        (fun l -> (S.sum (List.rev l) = sum l)))
 
 (* testing sum of ints reversed *)
 let test4 =
   Gradescope.to_ounit_test
-    (QCheck.Test.make ~count:1000 ~name:"rev small_int"
-       QCheck.(list small_int)
+    (QCheck.Test.make ~count:1000 ~name:"rev int_small"
+       QCheck.(list int_small)
        (fun l -> (S.sum (List.rev l) = sum l)))
 
 (* annotate tests with meta information *)
