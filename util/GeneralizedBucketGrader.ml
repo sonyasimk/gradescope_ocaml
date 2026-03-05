@@ -15,11 +15,18 @@ module type BUCKET_INPUT =
     type input
     module Output : OUTPUT
 
-    val tests : (input Display.t * (Output.t -> bool) Display.t) list
-    val timeout : int
-
     module Bucket : OUTPUT
-    val bucket : input -> Bucket.t
+    type property = {
+      name        : string;
+      bucket      : Bucket.t;
+      showInput   : Display.string;
+      showOutput  : Display.string;
+      gen         : input QCheck.arbitrary;
+      check       : input -> Output.t -> bool;
+      numTests    : int;
+      timeout     : int
+    }
+    val properties : property list
     val buckets : (Bucket.t * int) list
 
     val submission : input -> Output.t
@@ -103,23 +110,37 @@ module Make
             fun y -> if Input.Bucket.equal y (p x) then x :: f y else f y
         )
     
-    let testBuckets = partition (Input.bucket >> fst >> fst) Input.tests
+    let propertyBuckets = partition (fun (p : Input.property) -> p.bucket) Input.properties
+
+    let checkProp submission (prop : Input.property) =
+      let res = ref None in
+      let test =
+        QCheck.Test.make_cell
+          ~name:prop.name
+          ~count:prop.numTests
+          prop.gen
+          (fun input ->
+            let r = Result.evaluate prop.timeout submission input in
+              match r with
+              | Result.Value v -> 
+                if prop.check input v then true
+                else (res := Some (Result.Value v, prop.showInput, prop.showOutput); false)
+              | _ -> res := Some (r, prop.showInput, prop.showOutput); false)
+      in
+        (match QCheck2.TestResult.get_state (QCheck2.Test.check_cell test) with
+          QCheck2.TestResult.Success -> None
+        (* other options include Failed, Failed_other, and Error *)
+        | _ -> !res)
 
     let process =
       let processBucket =
-      Scheme.aggregate (
-        fun ((input, inputString), (p, pString)) ->
-          let resultOpt =
-              match Result.evaluate Input.timeout Input.submission input with
-                Result.Value x   -> if p x then None else Some (Result.Value x)
-              | Result.Raise e   -> Some (Result.Raise e)
-              | Result.Timeout t -> Some (Result.Timeout t)
-          in
-          let f output : Rubric.tests = { input = inputString; expected = pString; output = output } in
+        Scheme.aggregate (fun p ->
+          let resultOpt = checkProp Input.submission p in
+          let f (output, input, expected) : Rubric.tests = { input = input; expected = expected; output = output } in
             Option.map
               f
               resultOpt
-      )
+        )
     in 
-      fun () -> List.map (processBucket >> testBuckets >> fst) Input.buckets
+      fun () -> List.map (processBucket >> propertyBuckets >> fst) Input.buckets
   end

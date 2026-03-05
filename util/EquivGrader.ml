@@ -8,9 +8,13 @@ module type EQUIV_INPUT =
     type input
     module Output : OUTPUT
 
-    val tests : (string * input) list
-    (* val timeout : Time.time *)
-    val timeout : float
+    type eqTest = {
+      name : string;
+      gen : input QCheck.arbitrary;
+      numTests : int;
+      timeout : int
+    }
+    val test : eqTest
 
     val refsol     : input -> Output.t
     val submission : input -> Output.t
@@ -25,7 +29,17 @@ module EquivAux (I : EQUIV_INPUT) =
         type t = unit
         [@@deriving show, eq]
       end
-    let bucket = ignore
+    
+    type test = {
+      name : string;
+      bucket : Bucket.t;
+      gen : input QCheck.arbitrary;
+      numTests : int;
+      timeout : int
+    }  
+
+    let tests = [{ name = test.name; bucket = (); gen = test.gen; numTests = test.numTests; timeout = test.timeout }]
+    
     let buckets = [((), 1)]
   end
 

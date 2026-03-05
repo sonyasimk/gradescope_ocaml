@@ -1,5 +1,6 @@
 open GraderSig
 open OutputSig
+module type BUCKET_INPUT = GeneralizedBucketGrader.BUCKET_INPUT
 
 module type EQUIV_BUCKET_INPUT =
   sig
@@ -8,31 +9,52 @@ module type EQUIV_BUCKET_INPUT =
     type input
     module Output : OUTPUT
 
-    val tests : (string * input) list
-    (* val timeout : Time.time *)
-    val timeout : float
-
     module Bucket : OUTPUT
-    val bucket : input -> Bucket.t
+
+    type test = {
+      name : string;
+      bucket : Bucket.t;
+      gen : input QCheck.arbitrary;
+      numTests : int;
+      timeout : int
+    }
+    val tests : test list
     val buckets : (Bucket.t * int) list
 
     val refsol     : input -> Output.t
     val submission : input -> Output.t
   end
 
-module EquivAuxBucket (I : EQUIV_BUCKET_INPUT) =
+module EquivAuxBucket (I : EQUIV_BUCKET_INPUT) : BUCKET_INPUT =
   struct
     include I
 
-    let tests = List.map (fun (inputString,input) ->
-      (* let refsolOutput = Result.valOf (Result.evaluate timeout refsol input) *)
-      let refsolOutput = refsol input
+    type property = {
+      name        : string;
+      bucket      : Bucket.t;
+      showInput   : unit -> string;
+      showOutput  : unit -> string;
+      gen         : input QCheck.arbitrary;
+      check       : input -> Output.t -> bool;
+      numTests    : int;
+      timeout     : int
+    }
+
+    let properties : property list = List.map (fun (t : test) -> 
+      let runRefsol i = Result.valOf (Result.evaluate t.timeout refsol i) in
+      let check i o = Output.equal (runRefsol i) o 
       in
-        ((input, fun () -> inputString), (
-          Output.equal refsolOutput,
-          fun () -> Output.show refsolOutput
-        ))
-    ) tests
+        {
+          name = "Checking " ^ t.name;
+          bucket = t.bucket;
+          showInput = (fun () -> t.name);
+          (* TODO: not really sure the best way to go about this *)
+          showOutput = (fun () -> "");
+          gen = t.gen;
+          check = check;
+          numTests = t.numTests;
+          timeout = t.timeout
+        }) tests
   end
 
 module Make (I : EQUIV_BUCKET_INPUT) : GRADER =
