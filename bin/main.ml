@@ -1,53 +1,21 @@
-open Gradescope    (* gradscope bindings *)
-open OUnit         (* ocaml unit testing *)
-module S = Student (* student submission *)
+open Grader
 
-(* reference implementation *)
-let rec sum = function
-  | []    -> 0
-  | x::xs -> x + sum xs
+let () = (
+  let rubric = SumGrader.Grade.process () in
 
-(* testing sum of nats *)
-let test1 =
-  Gradescope.to_ounit_test
-    (QCheck.Test.make ~count:1000 ~name:"nat_small"
-       QCheck.(list nat_small)
-       (fun l -> (S.sum l) = sum l))
+  let message = FormatUtil.indentWith "" (SumGrader.Grade.Rubric.toString rubric) in
 
-(* testing sum of ints *)
-let test2 =
-  Gradescope.to_ounit_test
-    (QCheck.Test.make ~count:1000 ~name:"int_small"
-       QCheck.(list int_small)
-       (fun l -> (S.sum l) = sum l))
+  (* compute numerator and denominator of rubric instance score *)
+  let (a, b) = 
+    let q = SumGrader.Grade.Rubric.score rubric in (Z.to_int (Q.num q), Z.to_int (Q.den q)) in
 
-(* testing sum of nats reversed *)
-let test3 =
-  Gradescope.to_ounit_test
-    (QCheck.Test.make ~count:1000 ~name:"rev nat_small"
-       QCheck.(list nat_small)
-       (fun l -> (S.sum (List.rev l) = sum l)))
-
-(* testing sum of ints reversed *)
-let test4 =
-  Gradescope.to_ounit_test
-    (QCheck.Test.make ~count:1000 ~name:"rev int_small"
-       QCheck.(list int_small)
-       (fun l -> (S.sum (List.rev l) = sum l)))
-
-(* annotate tests with meta information *)
-let tests = "sum" >::: [
-    "@25" >: ("@hidden"          >: test1);
-    "@25" >: ("@after_due_date"  >: test2);
-    "@25" >: ("@after_published" >: test3);
-    "@25" >: ("@visible"         >: test4);
-  ]
-
-(* generate results.json *)
-(* can optionally output to stdout for debugging the grading script *)
-let _ =
-  run_gradescope
-    ~enable_timer:(true)
-    ~tests:(Some tests)
-    (* stdout *)
-    (open_out Gradescope.result_path)
+  (* write results to output.json *)
+  let json =
+    `Assoc [
+      ("message", `String message);
+      ("score", `List [`Int a; `Int b])
+    ] 
+  in
+  
+  Yojson.Safe.to_file "output.json" json
+)

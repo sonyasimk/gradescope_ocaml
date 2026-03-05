@@ -9,10 +9,10 @@ module type EQUIV_INPUT =
     module Output : OUTPUT
 
     type eqTest = {
-      name : string;
       gen : input QCheck.arbitrary;
       numTests : int;
-      timeout : int
+      timeout : int;
+      toString : input -> string
     }
     val test : eqTest
 
@@ -31,22 +31,22 @@ module EquivAux (I : EQUIV_INPUT) =
       end
     
     type test = {
-      name : string;
       bucket : Bucket.t;
       gen : input QCheck.arbitrary;
       numTests : int;
-      timeout : int
+      timeout : int;
+      toString : input -> string
     }  
 
-    let tests = [{ name = test.name; bucket = (); gen = test.gen; numTests = test.numTests; timeout = test.timeout }]
+    let tests = [{ bucket = (); gen = test.gen; numTests = test.numTests; timeout = test.timeout; toString = test.toString }]
     
     let buckets = [((), 1)]
   end
 
-module EquivGrader (I : EQUIV_INPUT) : GRADER =
+module Make (I : EQUIV_INPUT) : GRADER =
   EquivGraderBucket.Make (EquivAux (I))
 
-module EquivGraderList (I :
+module MakeList (I :
     sig
       include EQUIV_INPUT
       val cutoff : int
