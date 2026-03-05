@@ -16,8 +16,7 @@ module type BUCKET_INPUT =
     module Output : OUTPUT
 
     val tests : (input Display.t * (Output.t -> bool) Display.t) list
-    val timeout : float
-    (* val timeout : Time.time *)
+    val timeout : int
 
     module Bucket : OUTPUT
     val bucket : input -> Bucket.t
@@ -46,7 +45,7 @@ module Make
       type tests = {
         input    : Display.string; 
         expected : Display.string;
-        output   : (Input.Output.t, unit) Result.t
+        output   : Input.Output.t Result.t
         }
       type t = tests Scheme.t list
       (* invariant: length = List.length buckets *)
@@ -65,18 +64,12 @@ module Make
       let combine percent description = percent ^ " " ^ description
       let format description output = description ^ "\n" ^ FormatUtil.indent output
 
-      (* TODO: get rid of this and make designated result library *)
-      let resultToString r =
-        match r with
-          Ok o -> "Ok " ^ Input.Output.show o
-        | Error _ -> "Error"
-
       let schemeToString =
         Scheme.toString (fun { input; expected; output } ->
           "Test failed:\n" ^
           FormatUtil.indentWith "  Test    : " (input ()) ^ "\n" ^
           FormatUtil.indentWith "  Expected: " (expected ()) ^ "\n" ^
-          FormatUtil.indentWith "  Received: " (resultToString output) ^ "\n"
+          FormatUtil.indentWith "  Received: " (Result.toString Input.Output.show output) ^ "\n"
         )
 
       let toString =
@@ -112,18 +105,15 @@ module Make
     
     let testBuckets = partition (Input.bucket >> fst >> fst) Input.tests
 
-    (* let eval f = Result.evaluate timeout f *)
-    let eval f x = f x
-
     let process =
       let processBucket =
       Scheme.aggregate (
         fun ((input, inputString), (p, pString)) ->
           let resultOpt =
-              match Ok (eval Input.submission input) with
-                Result.Ok x   -> if p x then None else Some (Result.Ok x)
-              | Result.Error e   -> Some (Result.Error e)
-              (* | Result.Timeout t -> SOME (Result.Timeout t) *)
+              match Result.evaluate Input.timeout Input.submission input with
+                Result.Value x   -> if p x then None else Some (Result.Value x)
+              | Result.Raise e   -> Some (Result.Raise e)
+              | Result.Timeout t -> Some (Result.Timeout t)
           in
           let f output : Rubric.tests = { input = inputString; expected = pString; output = output } in
             Option.map

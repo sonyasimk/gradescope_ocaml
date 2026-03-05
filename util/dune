@@ -1,6 +1,6 @@
 (library
  (name util)
- (libraries gradescope zarith str threads atdgen-runtime ounit2 qcheck)
+ (libraries gradescope zarith unix str threads atdgen-runtime ounit2 qcheck)
  (preprocess (pps ppx_deriving.show ppx_deriving.eq))
  (wrapped false))
 
