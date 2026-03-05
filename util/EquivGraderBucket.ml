@@ -1,29 +1,26 @@
 open GraderSig
-module type BUCKET_INPUT = GeneralizedBucketGrader.BUCKET_INPUT
+open OutputSig
 
 module type EQUIV_BUCKET_INPUT =
   sig
     val description : string
 
     type input
-
-    type output
-    [@@deriving show, eq]
+    module Output : OUTPUT
 
     val tests : (string * input) list
     (* val timeout : Time.time *)
     val timeout : float
 
-    type bucket
-    [@@deriving show, eq]
-    val bucket : input -> bucket
-    val buckets : (bucket * int) list
+    module Bucket : OUTPUT
+    val bucket : input -> Bucket.t
+    val buckets : (Bucket.t * int) list
 
-    val refsol     : input -> output
-    val submission : input -> output
+    val refsol     : input -> Output.t
+    val submission : input -> Output.t
   end
 
-module EquivAuxBucket (I : EQUIV_BUCKET_INPUT) : BUCKET_INPUT =
+module EquivAuxBucket (I : EQUIV_BUCKET_INPUT) =
   struct
     include I
 
@@ -32,8 +29,8 @@ module EquivAuxBucket (I : EQUIV_BUCKET_INPUT) : BUCKET_INPUT =
       let refsolOutput = refsol input
       in
         ((input, fun () -> inputString), (
-          equal_output refsolOutput,
-          fun () -> show_output refsolOutput
+          Output.eq refsolOutput,
+          fun () -> Output.toString refsolOutput
         ))
     ) tests
   end

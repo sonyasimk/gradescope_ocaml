@@ -1,28 +1,30 @@
 open GraderSig
+open OutputSig
 
 module type EQUIV_INPUT =
   sig
     val description : string
 
     type input
-
-    type output
-    [@@deriving show, eq]
+    module Output : OUTPUT
 
     val tests : (string * input) list
     (* val timeout : Time.time *)
     val timeout : float
 
-    val refsol     : input -> output
-    val submission : input -> output
+    val refsol     : input -> Output.t
+    val submission : input -> Output.t
   end
 
 module EquivAux (I : EQUIV_INPUT) =
   struct
     include I
 
-    type bucket = unit
-    [@@deriving show, eq]
+    module Bucket = EasyOutput.Make (
+      struct 
+        type t = unit
+        [@@deriving show, eq]
+      end)
     let bucket = ignore
     let buckets = [((), 1)]
   end

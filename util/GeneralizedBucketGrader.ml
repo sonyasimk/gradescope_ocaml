@@ -1,4 +1,5 @@
 open GraderSig
+open OutputSig
 open FormatUtil
 
 module Display =
@@ -12,19 +13,17 @@ module type BUCKET_INPUT =
     val description : string
 
     type input
-    type output
-    [@@deriving show, eq]
+    module Output : OUTPUT
 
-    val tests : (input Display.t * (output -> bool) Display.t) list
+    val tests : (input Display.t * (Output.t -> bool) Display.t) list
     val timeout : float
     (* val timeout : Time.time *)
 
-    type bucket
-    [@@deriving show, eq]
-    val bucket : input -> bucket
-    val buckets : (bucket * int) list
+    module Bucket : OUTPUT
+    val bucket : input -> Bucket.t
+    val buckets : (Bucket.t * int) list
 
-    val submission : input -> output
+    val submission : input -> Output.t
   end
 
 module type SCHEME =
@@ -47,7 +46,7 @@ module Make
       type tests = {
         input    : Display.string; 
         expected : Display.string;
-        output   : (Input.output, unit) Result.t
+        output   : (Input.Output.t, unit) Result.t
         }
       type t = tests Scheme.t list
       (* invariant: length = List.length buckets *)
@@ -69,11 +68,11 @@ module Make
       (* TODO: get rid of this and make designated result library *)
       let resultToString r =
         match r with
-          Ok o -> "Ok " ^ Input.show_output o
+          Ok o -> "Ok " ^ Input.Output.toString o
         | Error _ -> "Error"
 
       let schemeToString =
-        Scheme.toString (fun { input; expected; output} ->
+        Scheme.toString (fun { input; expected; output } ->
           "Test failed:\n" ^
           FormatUtil.indentWith "  Test    : " (input ()) ^ "\n" ^
           FormatUtil.indentWith "  Expected: " (expected ()) ^ "\n" ^
@@ -92,7 +91,7 @@ module Make
                 (scores rubric)
                 fractions
               )
-              (List.map (Input.show_bucket >> fst) Input.buckets))
+              (List.map (Input.Bucket.toString >> fst) Input.buckets))
             (List.map schemeToString rubric)
         )
 
@@ -108,7 +107,7 @@ module Make
       | x :: xs -> (
           let f = partition p xs
           in
-            fun y -> if Input.equal_bucket y (p x) then x :: f y else f y
+            fun y -> if Input.Bucket.eq y (p x) then x :: f y else f y
         )
     
     let testBuckets = partition (Input.bucket >> fst >> fst) Input.tests
