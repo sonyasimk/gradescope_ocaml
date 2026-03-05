@@ -68,7 +68,7 @@ module Make
       (* TODO: get rid of this and make designated result library *)
       let resultToString r =
         match r with
-          Ok o -> "Ok " ^ Input.Output.toString o
+          Ok o -> "Ok " ^ Input.Output.show o
         | Error _ -> "Error"
 
       let schemeToString =
@@ -91,7 +91,7 @@ module Make
                 (scores rubric)
                 fractions
               )
-              (List.map (Input.Bucket.toString >> fst) Input.buckets))
+              (List.map (Input.Bucket.show >> fst) Input.buckets))
             (List.map schemeToString rubric)
         )
 
@@ -107,7 +107,7 @@ module Make
       | x :: xs -> (
           let f = partition p xs
           in
-            fun y -> if Input.Bucket.eq y (p x) then x :: f y else f y
+            fun y -> if Input.Bucket.equal y (p x) then x :: f y else f y
         )
     
     let testBuckets = partition (Input.bucket >> fst >> fst) Input.tests

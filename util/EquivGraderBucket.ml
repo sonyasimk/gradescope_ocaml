@@ -29,8 +29,8 @@ module EquivAuxBucket (I : EQUIV_BUCKET_INPUT) =
       let refsolOutput = refsol input
       in
         ((input, fun () -> inputString), (
-          Output.eq refsolOutput,
-          fun () -> Output.toString refsolOutput
+          Output.equal refsolOutput,
+          fun () -> Output.show refsolOutput
         ))
     ) tests
   end

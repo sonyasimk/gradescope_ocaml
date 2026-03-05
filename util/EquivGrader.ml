@@ -20,11 +20,11 @@ module EquivAux (I : EQUIV_INPUT) =
   struct
     include I
 
-    module Bucket = EasyOutput.Make (
-      struct 
+    module Bucket : OUTPUT with type t = unit =
+      struct
         type t = unit
         [@@deriving show, eq]
-      end)
+      end
     let bucket = ignore
     let buckets = [((), 1)]
   end
