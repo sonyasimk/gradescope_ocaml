@@ -6,6 +6,7 @@ module type EQUIV_BUCKET_INPUT =
     val description : string
 
     type input
+    val show_input : input -> string
     module Output : OUTPUT
 
     module Bucket : OUTPUT
@@ -14,8 +15,7 @@ module type EQUIV_BUCKET_INPUT =
       bucket : Bucket.t;
       gen : input QCheck.arbitrary;
       numTests : int;
-      timeout : int;
-      toString : input -> string
+      timeout : int
     }
     val tests : test list
     val buckets : (Bucket.t * int) list
@@ -46,7 +46,7 @@ module EquivAuxBucket (I : EQUIV_BUCKET_INPUT) =
         {
           name = "Checking submission against refsol";
           bucket = t.bucket;
-          showInput = (fun i () -> t.toString i);
+          showInput = (fun i () -> show_input i);
           showOutput = (fun i () -> Output.show (runRefsol i));
           gen = t.gen;
           check = check;

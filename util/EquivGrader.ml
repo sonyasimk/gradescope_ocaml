@@ -6,13 +6,13 @@ module type EQUIV_INPUT =
     val description : string
 
     type input
+    val show_input : input -> string
     module Output : OUTPUT
 
     type eqTest = {
       gen : input QCheck.arbitrary;
       numTests : int;
-      timeout : int;
-      toString : input -> string
+      timeout : int
     }
     val test : eqTest
 
@@ -34,11 +34,10 @@ module EquivAux (I : EQUIV_INPUT) =
       bucket : Bucket.t;
       gen : input QCheck.arbitrary;
       numTests : int;
-      timeout : int;
-      toString : input -> string
+      timeout : int
     }  
 
-    let tests = [{ bucket = (); gen = test.gen; numTests = test.numTests; timeout = test.timeout; toString = test.toString }]
+    let tests = [{ bucket = (); gen = test.gen; numTests = test.numTests; timeout = test.timeout }]
     
     let buckets = [((), 1)]
   end
