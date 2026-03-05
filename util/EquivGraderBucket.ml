@@ -33,7 +33,7 @@ module EquivAuxBucket (I : EQUIV_BUCKET_INPUT) : BUCKET_INPUT =
       name        : string;
       bucket      : Bucket.t;
       showInput   : unit -> string;
-      showOutput  : unit -> string;
+      showOutput  : input -> unit -> string;
       gen         : input QCheck.arbitrary;
       check       : input -> Output.t -> bool;
       numTests    : int;
@@ -48,8 +48,7 @@ module EquivAuxBucket (I : EQUIV_BUCKET_INPUT) : BUCKET_INPUT =
           name = "Checking " ^ t.name;
           bucket = t.bucket;
           showInput = (fun () -> t.name);
-          (* TODO: not really sure the best way to go about this *)
-          showOutput = (fun () -> "");
+          showOutput = (fun i () -> Output.show (runRefsol i));
           gen = t.gen;
           check = check;
           numTests = t.numTests;

@@ -20,7 +20,7 @@ module type BUCKET_INPUT =
       name        : string;
       bucket      : Bucket.t;
       showInput   : Display.string;
-      showOutput  : Display.string;
+      showOutput  : input -> Display.string;
       gen         : input QCheck.arbitrary;
       check       : input -> Output.t -> bool;
       numTests    : int;
@@ -124,8 +124,8 @@ module Make
               match r with
               | Result.Value v -> 
                 if prop.check input v then true
-                else (res := Some (Result.Value v, prop.showInput, prop.showOutput); false)
-              | _ -> res := Some (r, prop.showInput, prop.showOutput); false)
+                else (res := Some (Result.Value v, prop.showInput, prop.showOutput input); false)
+              | _ -> res := Some (r, prop.showInput, prop.showOutput input); false)
       in
         (match QCheck2.TestResult.get_state (QCheck2.Test.check_cell test) with
           QCheck2.TestResult.Success -> None
