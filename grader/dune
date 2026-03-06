@@ -1,8 +1,10 @@
 (library
  (name grader)
- (libraries util impl refsol base stdio)
+ (libraries util gradescope impl refsol base stdio)
   (inline_tests)
   (preprocess (pps ppx_jane ppx_deriving.show ppx_deriving.eq)))
+
+(include_subdirs unqualified)
 
 (env
   (dev

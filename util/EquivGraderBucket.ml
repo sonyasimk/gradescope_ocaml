@@ -31,8 +31,8 @@ module EquivAuxBucket (I : EQUIV_BUCKET_INPUT) =
     type property = {
       name        : string;
       bucket      : Bucket.t;
-      showInput   : input -> unit -> string;
-      showOutput  : input -> unit -> string;
+      showInput   : input -> string;
+      showOutput  : input -> string;
       gen         : input QCheck.arbitrary;
       check       : input -> Output.t -> bool;
       numTests    : int;
@@ -46,8 +46,8 @@ module EquivAuxBucket (I : EQUIV_BUCKET_INPUT) =
         {
           name = "Checking submission against refsol";
           bucket = t.bucket;
-          showInput = (fun i () -> show_input i);
-          showOutput = (fun i () -> Output.show (runRefsol i));
+          showInput = (fun i -> show_input i);
+          showOutput = (fun i -> Output.show (runRefsol i));
           gen = t.gen;
           check = check;
           numTests = t.numTests;

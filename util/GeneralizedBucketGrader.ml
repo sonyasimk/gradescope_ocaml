@@ -2,12 +2,6 @@ open GraderSig
 open OutputSig
 open FormatUtil
 
-module Display =
-  struct
-    type nonrec string = unit -> string
-    type 'a t = 'a * string  (* thunk *)
-  end
-
 module type BUCKET_INPUT =
   sig
     val description : string
@@ -19,8 +13,8 @@ module type BUCKET_INPUT =
     type property = {
       name        : string;
       bucket      : Bucket.t;
-      showInput   : input -> Display.string;
-      showOutput  : input -> Display.string;
+      showInput   : input -> string;
+      showOutput  : input -> string;
       gen         : input QCheck.arbitrary;
       check       : input -> Output.t -> bool;
       numTests    : int;
@@ -50,8 +44,8 @@ module Make
       let description = Input.description
 
       type tests = {
-        input    : Display.string; 
-        expected : Display.string;
+        input    : string; 
+        expected : string;
         output   : Input.Output.t Result.t
         }
       type t = tests Scheme.t list
@@ -74,8 +68,8 @@ module Make
       let schemeToString =
         Scheme.toString (fun { input; expected; output } ->
           "Test failed:\n" ^
-          FormatUtil.indentWith "  Test    : " (input ()) ^ "\n" ^
-          FormatUtil.indentWith "  Expected: " (expected ()) ^ "\n" ^
+          FormatUtil.indentWith "  Test    : " input ^ "\n" ^
+          FormatUtil.indentWith "  Expected: " expected ^ "\n" ^
           FormatUtil.indentWith "  Received: " (Result.toString Input.Output.show output) ^ "\n"
         )
 
@@ -141,6 +135,6 @@ module Make
               f
               resultOpt
         )
-    in 
+    in
       fun () -> List.map (processBucket >> propertyBuckets >> fst) Input.buckets
   end
