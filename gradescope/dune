@@ -1,3 +1,0 @@
-(library
- (name gradescope)
- (libraries str threads atdgen-runtime ounit2 qcheck))
