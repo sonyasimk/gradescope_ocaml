@@ -1,4 +1,4 @@
-open Grader
+open Tests
 open FormatUtil
 module G = SumGrader.Grade
 
