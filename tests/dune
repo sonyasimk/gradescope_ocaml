@@ -9,6 +9,7 @@
 (env
   (dev
     (flags (:standard
+            -w -8
             -w -20 
             -w -27 
             -w -32 
