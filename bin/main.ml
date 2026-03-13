@@ -1,6 +1,18 @@
 open Tests
 open FormatUtil
 
+(* reimplementation of library functions in case List library is shadowed *)
+let rec find_opt p l =
+  match l with
+    [] -> None
+  | x::xs -> if p x then Some x else find_opt p xs
+
+let rec combine l1 l2 =
+  match (l1, l2) with
+    ([], []) -> []
+  | (x::xs, y::ys) -> (x, y) :: combine xs ys
+  | _ -> raise (Invalid_argument "List.combine")
+
 let rec processTasks problem tasksAndScores filename =
   match tasksAndScores with
     [] -> ()
@@ -27,7 +39,7 @@ let rec processTasks problem tasksAndScores filename =
       let newEntry = 
         (match json with
         `Assoc fields ->
-          (match List.find_opt (String.equal "tests" >> fst) fields with
+          (match find_opt (String.equal "tests" >> fst) fields with
             Some (_, `List l) -> `List (l @ [entry])
           | None ->  `List [entry]
           | _ -> failwith "`tests`maxScore field in result JSON file is ill-formatted")
@@ -46,6 +58,6 @@ let _ = (
     (let scoreStrings = try String.split_on_char ' ' (Unix.getenv "GRADER_TASK_SCORES") with Not_found -> failwith "GRADER_TASK_SCORES not defined" in
       try List.map int_of_string scoreStrings with _ -> failwith "Score in GRADER_TASK_SCORES is not an integer") in
   
-  let tasksAndScores = List.combine tasks taskScores in
+  let tasksAndScores = combine tasks taskScores in
     processTasks problemName tasksAndScores filename
 )
