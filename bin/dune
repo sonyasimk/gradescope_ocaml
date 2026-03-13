@@ -2,3 +2,16 @@
  (public_name gradescope_ocaml)
  (name main)
  (libraries tests atdgen-runtime ounit2 qcheck))
+
+(env
+  (dev
+    (flags (:standard
+            -w -8
+            -w -20 
+            -w -27 
+            -w -32 
+            -w -34 
+            -w -37 
+            -w -39)))
+  (release 
+   (flags (:standard))))
