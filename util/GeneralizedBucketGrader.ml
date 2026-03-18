@@ -17,6 +17,7 @@ module type BUCKET_INPUT =
       showOutput  : input -> string;
       gen         : input QCheck.arbitrary;
       check       : input -> Output.t -> bool;
+      filter      : (input -> bool) option;
       numTests    : int;
       timeout     : int
     }
@@ -116,7 +117,8 @@ module Make
           (fun input ->
             let r = Result.evaluate prop.timeout submission input in
               match r with
-              | Result.Value v -> 
+              | Result.Value v ->
+                QCheck.assume (match prop.filter with None -> true | Some f -> f input);
                 if prop.check input v then true
                 else (res := Some (Result.Value v, prop.showInput input, prop.showOutput input); false)
               | _ -> res := Some (r, prop.showInput input, prop.showOutput input); false)

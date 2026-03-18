@@ -12,10 +12,11 @@ module Grade = EquivGrader.Make (
     type eqTest = {
       gen : input QCheck.arbitrary;
       numTests : int;
+      filter : (input -> bool) option;
       timeout : int
     }
 
-    let test = { gen = QCheck.(list int); numTests = 200; timeout = 10 }
+    let test = { gen = QCheck.(list int); numTests = 200; filter = None; timeout = 10 }
 
     let submission = Impl.Sum.sum
     let refsol = Refsol.Sum.sum
