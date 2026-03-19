@@ -1,4 +1,4 @@
-(lang dune 3.3)
+(lang dune 3.12)
 (name gradescope_ocaml)
 (generate_opam_files true)
 (source

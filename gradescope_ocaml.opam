@@ -8,7 +8,7 @@ homepage: "https://github.com/qcfu-bu/gradescope_ocaml"
 bug-reports: "https://github.com/qcfu-bu/gradescope_ocaml/issues"
 depends: [
   "ocaml"
-  "dune" {>= "3.3"}
+  "dune" {>= "3.12"}
   "atdgen"
   "ounit2"
   "qcheck"
