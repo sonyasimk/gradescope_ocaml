@@ -109,16 +109,16 @@ module Make
 
     let checkProp submission (prop : Input.property) =
       let res = ref None in
+      let gen = match prop.filter with None -> prop.gen | Some f -> QCheck.add_shrink_invariant f prop.gen in
       let test =
         QCheck.Test.make_cell
           ~name:prop.name
           ~count:prop.numTests
-          prop.gen
+          gen
           (fun input ->
             let r = Result.evaluate prop.timeout submission input in
               match r with
               | Result.Value v ->
-                QCheck.assume (match prop.filter with None -> true | Some f -> f input);
                 if prop.check input v then true
                 else (res := Some (Result.Value v, prop.showInput input, prop.showOutput input); false)
               | _ -> res := Some (r, prop.showInput input, prop.showOutput input); false)
