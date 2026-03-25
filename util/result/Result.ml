@@ -4,20 +4,10 @@ type 'a result = Value of 'a | Raise of exn | Timeout of int
 
 type 'a t = 'a result
 
-(* https://discuss.ocaml.org/t/computation-with-time-constraint/5548 *)
-exception TimeoutExn
-
 let evaluate timeout f x =
-  let _ =
-    Sys.set_signal Sys.sigalrm (Sys.Signal_handle (fun _ -> raise TimeoutExn))
-  in
-  ignore (Unix.alarm timeout);
-  try
-    let r = f x in
-    ignore (Unix.alarm 0); Value r
-  with
-  | TimeoutExn  -> ignore (Unix.alarm 0); Timeout timeout
-  | e -> ignore (Unix.alarm 0); Raise e
+  try Value (Util.prop_timeout timeout f x) with
+    Util.Timeout -> Timeout timeout
+  | e -> Raise e
 
 let map f = function
   Value x   -> Value (f x)

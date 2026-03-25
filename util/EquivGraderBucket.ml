@@ -15,7 +15,6 @@ module type EQUIV_BUCKET_INPUT =
       bucket : Bucket.t;
       gen : input QCheck.arbitrary;
       numTests : int;
-      filter : (input -> bool) option;
       timeout : int
     }
     val tests : test list
@@ -36,7 +35,6 @@ module EquivAuxBucket (I : EQUIV_BUCKET_INPUT) =
       showOutput  : input -> string;
       gen         : input QCheck.arbitrary;
       check       : input -> Output.t -> bool;
-      filter      : (input -> bool) option;
       numTests    : int;
       timeout     : int
     }
@@ -52,7 +50,6 @@ module EquivAuxBucket (I : EQUIV_BUCKET_INPUT) =
           showOutput = (fun i -> Output.show (runRefsol i));
           gen = t.gen;
           check = check;
-          filter = t.filter;
           numTests = t.numTests;
           timeout = t.timeout
         }) tests

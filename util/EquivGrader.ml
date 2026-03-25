@@ -12,7 +12,6 @@ module type EQUIV_INPUT =
     type eqTest = {
       gen : input QCheck.arbitrary;
       numTests : int;
-      filter : (input -> bool) option;
       timeout : int
     }
     val test : eqTest
@@ -35,11 +34,10 @@ module EquivAux (I : EQUIV_INPUT) =
       bucket : Bucket.t;
       gen : input QCheck.arbitrary;
       numTests : int;
-      filter : (input -> bool) option;
       timeout : int
     }  
 
-    let tests = [{ bucket = (); gen = test.gen; numTests = test.numTests; filter = test.filter; timeout = test.timeout }]
+    let tests = [{ bucket = (); gen = test.gen; numTests = test.numTests; timeout = test.timeout }]
     
     let buckets = [((), 1)]
   end

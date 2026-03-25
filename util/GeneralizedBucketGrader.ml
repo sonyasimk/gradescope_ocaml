@@ -17,7 +17,6 @@ module type BUCKET_INPUT =
       showOutput  : input -> string;
       gen         : input QCheck.arbitrary;
       check       : input -> Output.t -> bool;
-      filter      : (input -> bool) option;
       numTests    : int;
       timeout     : int
     }
@@ -109,13 +108,13 @@ module Make
 
     let checkProp submission (prop : Input.property) =
       let res = ref None in
-      let gen = match prop.filter with None -> prop.gen | Some f -> QCheck.add_shrink_invariant f prop.gen in
       let test =
         QCheck.Test.make_cell
           ~name:prop.name
           ~count:prop.numTests
-          gen
+          prop.gen
           (fun input ->
+            print_endline "evaluating";
             let r = Result.evaluate prop.timeout submission input in
               match r with
               | Result.Value v ->
