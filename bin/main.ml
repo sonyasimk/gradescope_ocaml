@@ -26,9 +26,7 @@ let rec processTasks problem tasksAndScores filename =
         if Q.(>) q Q.one then failwith "Rational greater than 1";
         let (num, den) = (Z.to_int (Q.num q), Z.to_int (Q.den q)) in
           (float_of_int (s * num)) /. (float_of_int den) in
-
       let json = Yojson.Safe.from_file filename in
-      (* effectively "output.json" *)
       let entry : Yojson.Safe.t = 
         `Assoc [
           ("name", `String (Printf.sprintf "%s: %s" problem t));
@@ -42,7 +40,7 @@ let rec processTasks problem tasksAndScores filename =
           (match find_opt (String.equal "tests" >> fst) fields with
             Some (_, `List l) -> `List (l @ [entry])
           | None ->  `List [entry]
-          | _ -> failwith "`tests`maxScore field in result JSON file is ill-formatted")
+          | _ -> failwith "`tests` max_score field in result JSON file is ill-formatted")
         | _ -> failwith "Result JSON file does not have proper formatting") in
       Yojson.Safe.to_file filename (`Assoc [("tests", newEntry)]); 
       processTasks problem ts filename
