@@ -114,7 +114,6 @@ module Make
           ~count:prop.numTests
           prop.gen
           (fun input ->
-            print_endline "evaluating";
             let r = Result.evaluate prop.timeout submission input in
               match r with
               | Result.Value v ->
