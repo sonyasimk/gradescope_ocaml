@@ -15,6 +15,6 @@ opam switch create 5.3.0
 
 eval $(opam env --switch=5.3.0)
 
-opam install -y dune atdgen ounit2 qcheck zarith ppx_jane ppx_deriving
+opam install -y dune atdgen ounit2 qcheck qcheck-multicoretests-util zarith ppx_jane ppx_deriving
 cd /autograder/source
 dune build util/ --profile release
