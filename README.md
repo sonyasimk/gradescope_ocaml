@@ -1,73 +1,31 @@
-# BU CS320 Gradescope Bindings for OCaml
+# OCaml Autograding Utilities
 
-## Dependencies
+This repository provides a framework for autograding in OCaml 
+This is a reimplementation of the [ProjectSavannah/autograding](https://github.com/ProjectSavanna/autograding) utilities, forked from the [gradescope_ocaml](https://github.com/qcfu-bu/gradescope_ocaml) repository.
 
-* opam
-* dune
-* atdgen
-* ounit2
-* qcheck
+## Overview
 
-Install dependencies with `opam install --deps-only .`
+This repository provides an adaptation of the [ProjectSavannah/autograding](https://github.com/ProjectSavanna/autograding) framework with additional QCheck integration for automatic test case generation.
+The codebase, in addition to implementing the autograding functionalities, provides a demo for grading the file [`sum.ml`](/impl/sum.ml). It has the following structure:
+- [`bin/`](/bin/)
+  - [`main.ml`](/bin/main.ml) - the primary grading mechanism, which runs the designated autograders for each task in a problem according to [`GraderMap.ml`](/tests/GraderMap.ml)
+- [`impl/`](/impl/)
+  - Where the student implementation is stored during grading
+- [`refsol/`](/refsol/)
+  - Where the reference solution is stored during grading
+- [`tests/`](/tests/)
+  - [`GraderMap.ml`](/tests/GraderMap.ml) - a mapping of tasks to their respective autograder for each problem in an assignment
+  - Contains the autograders for each task (for all problems on an assignment)
+- [`util/`](/util/)
+  - Autograding utility functions
 
-## Usage
+To run the demo, you should run `setup.sh` followed by `run-autograder`.
 
-Annotate ounit tests with labels `@` ^ `ANNO`. If `ANNO` can be parsed into a floating point number, then it will be used as the weight for the test, otherwise it will be used to control test visibility.
+For a detailed description of the grading utilities, see [here](util/README.md).
 
-Example:
+## Acknowledgments
 
-``` ocaml
-open Gradescope    (* gradscope bindings *)
-open OUnit         (* ocaml unit testing *)
-open Sum           (* student submission *)
+The code in this repository is based on the following two projects:
 
-(* reference implementation *)
-let rec sum = function
-  | []    -> 0
-  | x::xs -> x + sum xs
-
-(* testing sum of nats *)
-let test1 =
-  Gradescope.to_ounit_test
-    (QCheck.Test.make ~count:1000 ~name:"small_nat"
-       QCheck.(list small_nat)
-       (fun l -> (Sum.sum l) = sum l))
-
-(* testing sum of ints *)
-let test2 =
-  Gradescope.to_ounit_test
-    (QCheck.Test.make ~count:1000 ~name:"small_int"
-       QCheck.(list small_int)
-       (fun l -> (Sum.sum l) = sum l))
-
-(* testing sum of nats reversed *)
-let test3 =
-  Gradescope.to_ounit_test
-    (QCheck.Test.make ~count:1000 ~name:"rev small_nat"
-       QCheck.(list small_nat)
-       (fun l -> (Sum.sum (List.rev l) = sum l)))
-
-(* testing sum of ints reversed *)
-let test4 =
-  Gradescope.to_ounit_test
-    (QCheck.Test.make ~count:1000 ~name:"rev small_int"
-       QCheck.(list small_int)
-       (fun l -> (Sum.sum (List.rev l) = sum l)))
-
-(* annotate tests with meta information *)
- let tests = "sum" >::: [
-     "@25" >: ("@hidden"          >: test1);
-     "@25" >: ("@after_due_date"  >: test2);
-     "@25" >: ("@after_published" >: test3);
-     "@25" >: ("@visible"         >: test4);
- ]
-
-(* generate results.json *)
- let _ =
-   run_gradescope
-     ~enable_timer:(true)
-     ~tests:(Some tests)
-     (open_out Gradescope.result_path)
-```
-
-
+- [ProjectSavannah/autograding](https://github.com/ProjectSavanna/autograding), as this project is effectively a one-to-one translation of the SML autograding utilities defined there,
+- [gradescope_ocaml](https://github.com/qcfu-bu/gradescope_ocaml), which provided guidance for how to integrate OCaml grading frameworks with Gradescope
