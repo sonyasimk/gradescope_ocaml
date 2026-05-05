@@ -1,19 +1,15 @@
 (library
  (name impl)
  (libraries base stdio)
-  (inline_tests)
-  (preprocess (pps ppx_jane)))
+ (inline_tests)
+ (preprocess
+  (pps ppx_jane)))
 
 (include_subdirs unqualified)
 
 (env
-  (dev
-    (flags (:standard
-            -w -20 
-            -w -27 
-            -w -32 
-            -w -34 
-            -w -37 
-            -w -39)))
-  (release 
-   (flags (:standard))))
+ (dev
+  (flags
+   (:standard -w -20 -w -27 -w -32 -w -34 -w -37 -w -39)))
+ (release
+  (flags (:standard))))

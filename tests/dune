@@ -1,20 +1,15 @@
 (library
  (name tests)
  (libraries util impl refsol base stdio)
-  (inline_tests)
-  (preprocess (pps ppx_jane ppx_deriving.show ppx_deriving.eq)))
+ (inline_tests)
+ (preprocess
+  (pps ppx_jane ppx_deriving.show ppx_deriving.eq)))
 
 (include_subdirs unqualified)
 
 (env
-  (dev
-    (flags (:standard
-            -w -8
-            -w -20 
-            -w -27 
-            -w -32 
-            -w -34 
-            -w -37 
-            -w -39)))
-  (release 
-   (flags (:standard))))
+ (dev
+  (flags
+   (:standard -w -8 -w -20 -w -27 -w -32 -w -34 -w -37 -w -39)))
+ (release
+  (flags (:standard))))

@@ -19,5 +19,4 @@ module Grade = EquivGrader.Make (
 
     let submission = Impl.Sum.sum
     let refsol = Refsol.Sum.sum
-  end
-  )
+end)

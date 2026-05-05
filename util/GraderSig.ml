@@ -3,7 +3,7 @@ module type GRADER =
     module Rubric :
       sig
         val description : string
-        (* formerly "include SHOW" *)
+        
         type t
         val toString : t -> string
         val score : t -> Q.t
