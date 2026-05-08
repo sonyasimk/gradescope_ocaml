@@ -55,7 +55,7 @@ module Make
 
       let fractions =
         let weights = List.map (fun (_, b) -> Q.of_int b) Input.buckets in
-        let total = List.fold_left (Q.add) Q.zero weights in
+        let total = List.fold_left Q.add Q.zero weights in
           List.map
             (match Q.compare total Q.zero with
               0 -> Fun.const Q.one
@@ -75,8 +75,8 @@ module Make
 
       let toString =
       function
-        []      -> "No tests run.\n"
-      | [x] -> schemeToString x
+        []     -> "No tests run.\n"
+      | [x]    -> schemeToString x
       | rubric ->
         String.concat "" (
           List.map2 format (
@@ -97,7 +97,7 @@ module Make
 
     let rec partition p =
       function
-        []     -> (fun _ -> [])
+        []      -> (fun _ -> [])
       | x :: xs -> (
           let f = partition p xs
           in

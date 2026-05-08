@@ -8,7 +8,7 @@ module Make (I : BUCKET_INPUT) =
     type 'a t = 'a option
 
     let rec aggregate (f : 'a -> 'b option) : 'a list -> 'b t = function
-      []     -> None
+      []      -> None
     | x :: xs -> (
         match f x with
           None   -> aggregate f xs
